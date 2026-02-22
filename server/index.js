@@ -16,11 +16,31 @@ const PORT = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: process.env.NODE_ENV === "production" ? "https://question-system123.vercel.app" : "http://localhost:5173",
     credentials: true,
   }),
 );
 app.use(express.json());
+
+let isConnected = false;
+
+const connectInServer = async () => {
+  try {
+    await connectDB();
+    // console.log("Database connected successfully");
+    isConnected = true;
+  } catch (error) {
+    console.error("Database connection failed:", error);
+  }
+}
+
+app.use(async (req, res, next) => {
+  if (!isConnected) {
+    await connectInServer();
+    isConnected = true;
+  }
+  next();
+});
 
 // Routes — mounted by subsequent phases
 app.use("/api/auth", authRouter);
@@ -28,11 +48,7 @@ app.use("/api/questions", questionsRouter);
 app.use("/api/results", resultsRouter);
 
 // Connect to database and start server
-(async () => {
-  await connectDB();
-
-  server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-    console.log(`server running: http://localhost:${PORT}`);
-  });
-})();
+server.listen(PORT, () => {
+  // connectDB();
+  console.log(`Server is running on http://localhost:${PORT}`);
+});

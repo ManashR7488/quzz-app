@@ -2,7 +2,7 @@ import axios from 'axios';
 import useAuthStore from '../stores/authStore';
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:5000'
+  baseURL: 'https://question-system123-backend.vercel.app', // Update this to your production API URL
 });
 
 // Add request interceptor to attach auth token
